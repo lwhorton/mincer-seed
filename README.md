@@ -4,25 +4,62 @@ Mincer-Seed
 ## Why use Mincer?
 
 Maintaining clean, easily distributed front end assets is a huge pain without automation.
-Maintaining a giant block of
-```javascript
-<script src="path/to/a"></script>
-<script src="path/to/b"></script>
-<script src="path/to/c"></script>
+Maintaining a giant block of `<script>` tags, with the correct ordering, is similarly a huge pain.
+```html
+<script src="path/to/a-requires-jquery"></script>
+<script src="path/to/b-requires-a"></script>
+<script src="path/to/c-requires-b"></script>
 ```
-is similarly a huge pain, if not impossible, for larger applications.
 
 Introducing the `#= require` tag. At the top of each application file, simply include a `#= require`
-tag for each library / script required by that particular page of code.
+tag for each library / script required by that particular page of code (with relative path names).
 
 ```coffeescript
-#= require path/to/jquery
-#= require path/to/angular
-#= require path/to/app/controller
+#= require ../../vendor/path/to/jquery
+#= require ../../vendor/path/to/angular
+#= require ../../component/path/to/controller
 ```
 
 During the next `grunt`, mincer will inspect all coffee files, determine the appropriate dependency load
 order, and inject a block of `<script>` tags inside the appropriate html.
+
+Before grunt:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+
+<!-- #= require: example-app -->
+</body>
+</html>
+```
+
+After grunt:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+
+
+<script src="static/vendor/path/to/jquery"></script>
+<script src="static/vendor/path/to/angular"></script>
+<script src="static/component/path/to/controller"></script>
+</body>
+</html>
+```
+
+But wait, there's more!
+
+The grunt build process also moves around assets and compiles coffeescript on the fly, depositing
+everything a server needs to serve your app into the `/static` directory. All vendor files referenced
+by your app are similarly thrown into the `/static`, but only those actually files actually referenced,
+and not any of the cruft such as `.json`, `.bower`, or `/src/*` normally found inside vendor packages.
 
 ## Install
 
@@ -38,24 +75,49 @@ Each directory under `static-src/` is intended to be a self contained component 
 The build process uses some naming conventions to automate the asset collection / compilation process.
 
 To add a new component to your application, simply add a new dir under `static-src/<component-name>-app`,
- and within this dir be sure to include an "entry point" to that component as `<component-name>-app/<component-name>.coffee`.
+and within this dir be sure to include an "entry point" to that component as `<component-name>-app/<component-name>.coffee`.
 
- Any less for a component will similarly be named and placed as such: `<component-name>-app/<component-name>.less`.
- If a component needs more than one less file (most will), be sure to `@include ../another-component/anoother-component.less`
- inside the main less file.
+Any less for a component will similarly be named and placed as such: `<component-name>-app/<component-name>.less`.
+If a component needs more than one less file (most will), be sure to `@include ../another-component/anoother-component.less`
+inside the main less file.
 
- Inside of each `<component-name>-app/` should be one (and only one) html file that contains a comment formatted like this:
-  ```html
-  <!-- #= require: <component-name> -->
-  ```
-  When the grunt process runs, it will find the HTML for each component and replace the tag with all libs/scripts
-  required by that component to function correctly.
+Inside of each `<component-name>-app/` should exist a `<component-name>.html` file that contains a comment formatted as such:
+```html
+<!-- #= require: <component-name> -->
+```
 
- File directory roots for `STATIC`, `STATIC_SOURCE`, `ASSETS_ROOT`, and `VENDOR_ROOT`, are configurable via the gruntfile.
+When the grunt process runs, it will find the HTML for each component and replace the tag with all libs/scripts
+required by that component to function correctly.
+
+File directory roots for `STATIC`, `STATIC_SOURCE`, `ASSETS_ROOT`, and `VENDOR_ROOT`, are configurable via the gruntfile.
 
 
-## File Structure
+## Template Structure
 
+Before a grunt:
+```
+-grunt-util
+    -tasks
+        json-mincer.coffee
+        require-injector.coffee
+    helpers.coffee
+-static-src
+    -base
+    base.less
+    -<component-name>-app
+    <component-name>.coffee
+    <component-name>.less
+    <component-name>.html
+    ...
+-vendor
+    -jquery
+        -dist
+            jquerry.min.js
+    -lodash
+        lodash.min.js
+```
+
+After a grunt:
 ```
 -grunt-util
     -tasks
@@ -68,6 +130,20 @@ To add a new component to your application, simply add a new dir under `static-s
     -<component-name>-app
         <component-name>.coffee
         <component-name>.less
-        *.html
+        <component-name>.html
+        ...
+-static
+    -base
+        base.css
+    -<component-name>-app
+        <component-name>.js
+        <component-name>.css
+        <component-name>.html
+        ...
 -vendor
+    -jquery
+        -dist
+            jquery.min.js
+    -lodash
+        lodash.min.js
 ```

@@ -75,7 +75,7 @@ configureHtml = (staticApps, config, grunt) ->
         # configure require_injector
         config.require_injector[app.appName] =
             files: [
-                src: "#{app.appName}-app/**/*.html"
+                src: "#{app.appName}-app/#{app.appName}.html"
                 cwd: app.appsRoot
                 dest: app.assetsRoot
                 manifest: app.manifestPath
