@@ -1,0 +1,18 @@
+{
+  "name": "mincer-seed",
+  "version": "0.0.1",
+  "authors": [
+    "luke.w.horton@gmail.com"
+  ],
+  "description": "A seed project to allow #= require tags for automated script injection.",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.0",
+    "angular": "~1.2.16"
+  }
+}

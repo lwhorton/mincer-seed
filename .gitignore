@@ -1,0 +1,14 @@
+# Intellij
+.idea/
+.iml
+
+# Bower
+.bower-cache
+.bower-registry
+.bower-tmp
+vendor/
+
+# NPM
+node_modules/
+
+static/
