@@ -33,6 +33,9 @@ module.exports = (grunt) ->
             less:
                 files: ["#{STATIC_SOURCE}/**/*.less"]
                 tasks: ['less']
+            html:
+                files: ["#{STATIC_SOURCE}/**/*.html"]
+                tasks: ['require_injector']
 
         coffee:
             static_src:
