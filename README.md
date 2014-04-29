@@ -58,8 +58,71 @@ But wait, there's more!
 
 The grunt build process also moves around assets and compiles coffeescript on the fly, depositing
 everything a server needs to serve your app into the `/static` directory. All vendor files referenced
-by your app are similarly thrown into the `/static`, but only those actually files actually referenced,
+by your app are similarly thrown into the `/static`, but only those files actually referenced,
 and not any of the cruft such as `.json`, `.bower`, or `/src/*` normally found inside vendor packages.
+
+Before grunt:
+```
+-grunt-util
+    -tasks
+        json-mincer.coffee
+        require-injector.coffee
+    helpers.coffee
+-static-src
+    -base
+    base.less
+    -<component-name>-app
+    <component-name>.coffee
+    <component-name>.less
+    <component-name>.html
+    ...
+-vendor
+    -jquery
+        -dist
+            jquery.min.js
+        -src
+            jquery.selector.js
+            jquery.finder.js
+            jquery.loader.js
+        .bowerrc
+        .npm
+    -lodash
+        lodash.min.js
+        .bowerrc
+        tracker.json
+```
+
+After grunt:
+```
+-grunt-util
+    -tasks
+        json-mincer.coffee
+        require-injector.coffee
+    helpers.coffee
+-static-src
+    -base
+        base.less
+    -<component-name>-app
+        <component-name>.coffee
+        <component-name>.less
+        <component-name>.html
+        ...
+-static
+    -base
+        base.css
+    -<component-name>-app
+        <component-name>.js
+        <component-name>.css
+        <component-name>.html
+        ...
+-vendor
+    -jquery
+        -dist
+            jquery.min.js
+    -lodash
+        lodash.min.js
+```
+
 
 ## Install
 
@@ -90,60 +153,3 @@ When the grunt process runs, it will find the HTML for each component and replac
 required by that component to function correctly.
 
 File directory roots for `STATIC`, `STATIC_SOURCE`, `ASSETS_ROOT`, and `VENDOR_ROOT`, are configurable via the gruntfile.
-
-
-## Template Structure
-
-Before a grunt:
-```
--grunt-util
-    -tasks
-        json-mincer.coffee
-        require-injector.coffee
-    helpers.coffee
--static-src
-    -base
-    base.less
-    -<component-name>-app
-    <component-name>.coffee
-    <component-name>.less
-    <component-name>.html
-    ...
--vendor
-    -jquery
-        -dist
-            jquerry.min.js
-    -lodash
-        lodash.min.js
-```
-
-After a grunt:
-```
--grunt-util
-    -tasks
-        json-mincer.coffee
-        require-injector.coffee
-    helpers.coffee
--static-src
-    -base
-        base.less
-    -<component-name>-app
-        <component-name>.coffee
-        <component-name>.less
-        <component-name>.html
-        ...
--static
-    -base
-        base.css
-    -<component-name>-app
-        <component-name>.js
-        <component-name>.css
-        <component-name>.html
-        ...
--vendor
-    -jquery
-        -dist
-            jquery.min.js
-    -lodash
-        lodash.min.js
-```
