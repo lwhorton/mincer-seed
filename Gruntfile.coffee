@@ -7,16 +7,17 @@
     ModifiedManifest
 } = require './grunt-util/helpers'
 
-# Where do we want to dump our compiled scripts/assets?
+# Where do we want to dump our compiled scripts/assets? This is the single
+# directory from which we can serve our application.
 STATIC = './static'
 
-# Where are our source scripts located?
+# Where is the source code located?
 STATIC_SOURCE = './static-src'
 
-# Where are our source assets located?
+# Where are the source assets (images, sounds, etc.) located?
 ASSETS_ROOT = './static'
 
-# Where are our source third party libs located?
+# Where is the third party source code located?
 VENDOR_ROOT = './vendor'
 
 module.exports = (grunt) ->
@@ -24,8 +25,8 @@ module.exports = (grunt) ->
         pkg: grunt.file.readJSON 'package.json'
         sdist: '<%= pkg.name+"-"+pkg.version %>-src'
         bdist: '<%= pkg.name+"-"+pkg.version %>'
-        static: STATIC
 
+        # Watch coffee/less/html for changes and rebuild only those modified components.
         _watch_:
             coffee:
                 files: ["#{STATIC_SOURCE}/**/*.coffee"]
@@ -66,8 +67,7 @@ module.exports = (grunt) ->
                     filter: 'isFile'
                 ]
 
-        # This only copies vendor files, because compiled files are
-        # managed by the coffee task.
+        # Move any vendor files utilized by application into STATIC.
             vendor_js:
                 files: [
                     expand: true
@@ -91,14 +91,16 @@ module.exports = (grunt) ->
                 files:
                     "static/css/base.css": "#{STATIC_SOURCE}/base/base.less"
 
-    # Do not change json_mincer/require_injector here. We dynamically build these below, just
-    # before we call grunt.initConfig. Offer staticSourceRoot an array of paths
-    # to include when mincer is searching for files, and htmlSources as the paths
-    # to the html files that <!-- #= require: --> those apps.
+        # Do not change json_mincer/require_injector here. We dynamically build these options
+        # before we call grunt.initConfig.
+
+        # Provide mincer with an array of paths that point to any files where #= require tags
+        # might be trying to reach. Usually this is just /static-src and /vendor.
         json_mincer:
             options:
                 staticSourceRoot: [STATIC_SOURCE, VENDOR_ROOT]
 
+        # Provide the injector with the final destination of compiled html files.
         require_injector:
             options:
                 staticSourceRoot: STATIC
@@ -110,7 +112,7 @@ module.exports = (grunt) ->
     registerApps staticApps, config, grunt
     configureHtml staticApps, config, grunt
 
-    # Grab a list of all the utilized vendor files for registered apps.
+    # Grab a list of all the utilized vendor files for registered apps (for use by require_injector).
     allVendorFiles = allFilesForApps(staticApps)
 
     grunt.initConfig config
