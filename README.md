@@ -1,10 +1,9 @@
 Mincer-Seed
 ===========
 
-## Why use Mincer?
+## Why Mincer?
 
-Maintaining clean, easily distributed front end assets is a huge pain without automation.
-Maintaining a giant block of `<script>` tags, with the correct ordering, is similarly a huge pain.
+Maintaining a giant block of `<script>` is a huge pain.
 ```html
 <script src="path/to/a-requires-jquery"></script>
 <script src="path/to/b-requires-a"></script>
@@ -12,7 +11,7 @@ Maintaining a giant block of `<script>` tags, with the correct ordering, is simi
 ```
 
 Introducing the `#= require` tag. At the top of each application file, simply include a `#= require`
-tag for each library / script required by that particular page of code (with relative path names).
+tag for each library / script required by that particular file (with relative path names).
 
 ```coffeescript
 #= require ../../vendor/path/to/jquery
@@ -20,8 +19,8 @@ tag for each library / script required by that particular page of code (with rel
 #= require ../../component/path/to/controller
 ```
 
-During the next `grunt`, mincer will inspect all coffee files, determine the appropriate dependency load
-order, and inject a block of `<script>` tags inside the appropriate html.
+During the next `grunt`, mincer will inspect your application's coffee files, determine the appropriate dependency load
+order, and inject a block of pre-generated `<script>` tags inside the application's html.
 
 Before grunt:
 ```html
@@ -56,10 +55,9 @@ After grunt:
 
 But wait, there's more!
 
-The grunt build process also moves around assets and compiles coffeescript on the fly, depositing
-everything a server needs to serve your app into the `/static` directory. All vendor files referenced
-by your app are similarly thrown into the `/static`, but only those files actually referenced,
-and not any of the cruft such as `.json`, `.bower`, or `/src/*` normally found inside vendor packages.
+The grunt build process also moves around assets and compiles coffeescript on the fly, packaging
+everything a server needs to serve your app from a single `/static` directory. Only vendor files referenced
+by `#= require` are included inside `/static`, and not any extra files or cruft such as `.json`, `.bower`, or `/src/*`.
 
 Before grunt:
 ```
@@ -142,14 +140,14 @@ and within this dir be sure to include an "entry point" to that component as `<c
 
 Any less for a component will similarly be named and placed as such: `<component-name>-app/<component-name>.less`.
 If a component needs more than one less file (most will), be sure to `@include ../another-component/anoother-component.less`
-inside the main less file.
+inside the base less file located in `static-src/base/`.
 
 Inside of each `<component-name>-app/` should exist a `<component-name>.html` file that contains a comment formatted as such:
 ```html
 <!-- #= require: <component-name> -->
 ```
 
-When the grunt process runs, it will find the HTML for each component and replace the tag with all libs/scripts
-required by that component to function correctly.
+When the grunt process runs, it will find the HTML for each component and replace the tag with a pre-generated `<script>`
+tag block. Now each component of your application includes only those files absolutely necessary to function.
 
 File directory roots for `STATIC`, `STATIC_SOURCE`, `ASSETS_ROOT`, and `VENDOR_ROOT`, are configurable via the gruntfile.
